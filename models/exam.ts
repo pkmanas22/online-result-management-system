@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const examSchema = new mongoose.Schema({
-  examname: {
+  examName: {
     type: String,
     required: true,
     trim: true,
@@ -16,7 +16,7 @@ const examSchema = new mongoose.Schema({
   },
   totalMarks: {
     type: Number,
-    default: 10,
+    default: 100,
   },
   year: {
     type: String,
