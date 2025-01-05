@@ -86,12 +86,7 @@ export default function LoginButton({ role }: LoginButtonProps) {
               required
             />
           </div>
-          <Button
-            asChild
-            variant="outline"
-            className="w-full border-gray-800 text-gray-800 hover:bg-gray-100"
-            type="submit"
-          >
+          <Button type="submit" className="w-full">
             Login
           </Button>
         </form>

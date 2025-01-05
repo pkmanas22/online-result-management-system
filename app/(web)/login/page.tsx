@@ -15,7 +15,7 @@ export default function Home() {
             width={48}
             height={48}
             className="rounded-full"
-            alt="TCET Logo"
+            alt="OUTR Logo"
           />
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 text-center">
             ODISHA UNIVERSITY OF TECHNOLOGY AND RESEARCH
@@ -25,15 +25,15 @@ export default function Home() {
             width={48}
             height={48}
             className="rounded-full"
-            alt="TCET Logo"
+            alt="OUTR Logo"
           />
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 h-60">
           {[
-            { role: "Admin", hasRegister: false },
-            { role: "Faculty", hasRegister: false },
             { role: "Student", hasRegister: true },
+            { role: "Faculty", hasRegister: false },
+            { role: "Admin", hasRegister: false },
           ].map(({ role, hasRegister }) => (
             <Card
               key={role}
