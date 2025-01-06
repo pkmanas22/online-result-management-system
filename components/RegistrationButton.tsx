@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/select";
 import { allDepartments } from "@/lib/types";
 import { signIn } from "next-auth/react";
+import { UserPlus, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function RegistrationButton() {
   const [open, setOpen] = useState(false);
@@ -33,7 +35,7 @@ export default function RegistrationButton() {
     contactNumber: "",
     rollNo: "",
   });
-
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<string | null>(null);
 
   const resetFormData = () => {
@@ -59,6 +61,7 @@ export default function RegistrationButton() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors(null);
+    setIsLoading(true);
 
     try {
       const response = await fetch("/api/register", {
@@ -84,19 +87,20 @@ export default function RegistrationButton() {
 
         if (res?.error) {
           alert("Invalid credentials");
+          setIsLoading(false);
           return;
         }
 
-        // Reset form data after successful login
         resetFormData();
         setOpen(false);
       } else {
-        setErrors(data.error || "Registration failed");
+        alert(data.error || "Registration failed");
       }
     } catch (error) {
-      setErrors("An unexpected error occurred. Please try again later.");
+      alert("An unexpected error occurred. Please try again later.");
       console.error("Error during registration:", error);
     }
+    setIsLoading(false);
   };
 
   return (
@@ -104,12 +108,13 @@ export default function RegistrationButton() {
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="w-full border-gray-800 text-gray-800 hover:bg-gray-100"
+          className="w-full border-blue-500 text-blue-500 hover:bg-blue-50 font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105"
         >
+          <UserPlus className="mr-2 h-5 w-5" />
           Register
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] md:max-h-[90vh] overflow-y-scroll">
+      <DialogContent className="sm:max-w-[425px] md:max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Register as Student</DialogTitle>
           <DialogDescription>
@@ -117,98 +122,78 @@ export default function RegistrationButton() {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="contactNumber">Phone Number</Label>
-            <Input
-              id="contactNumber"
-              name="contactNumber"
-              type="tel"
-              value={formData.contactNumber}
-              onChange={handleChange}
-            />
-          </div>
-          <div>
-            <Label htmlFor="rollNo">Roll Number</Label>
-            <Input
-              id="rollNo"
-              name="rollNo"
-              type="text"
-              value={formData.rollNo}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="department">Department</Label>
-            <Select
-              value={formData.department}
-              onValueChange={(value) => handleSelectChange("department", value)}
+          {Object.entries(formData).map(([key, value], index) => (
+            <motion.div
+              key={key}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Select Department" />
-              </SelectTrigger>
-              <SelectContent>
-                {allDepartments.map((department, idx) => (
-                  <SelectItem key={idx} value={department}>
-                    {department}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="year">Year</Label>
-            <Select
-              value={formData.year}
-              onValueChange={(value) => handleSelectChange("year", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select Year" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">1st Year</SelectItem>
-                <SelectItem value="2">2nd Year</SelectItem>
-                <SelectItem value="3">3rd Year</SelectItem>
-                <SelectItem value="4">4th Year</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+              <Label htmlFor={key} className="capitalize">
+                {key.replace(/([A-Z])/g, " $1").trim()}
+              </Label>
+              {key === "department" ? (
+                <Select
+                  value={value}
+                  onValueChange={(value) => handleSelectChange(key, value)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder={`Select ${key}`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allDepartments.map((department, idx) => (
+                      <SelectItem key={idx} value={department}>
+                        {department}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : key === "year" ? (
+                <Select
+                  value={value}
+                  onValueChange={(value) => handleSelectChange(key, value)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder={`Select ${key}`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1, 2, 3, 4].map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}st Year
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  id={key}
+                  name={key}
+                  type={key === "password" ? "password" : "text"}
+                  value={value}
+                  onChange={handleChange}
+                  required
+                  className="mt-1"
+                />
+              )}
+            </motion.div>
+          ))}
           {errors && <p className="text-red-500">{errors}</p>}
-          <Button type="submit" className="w-full">
-            Register
-          </Button>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.8 }}
+          >
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Please wait
+                </>
+              ) : (
+                "Register"
+              )}
+            </Button>
+          </motion.div>
         </form>
       </DialogContent>
     </Dialog>
