@@ -64,15 +64,30 @@ export function UploadMarks() {
     }
   }, [rollNo]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Dummy submit logic
-    console.log("Marks uploaded:", {
-      rollNo,
-      studentName,
-      selectedExam,
-      securedMarks,
-    });
+    try {
+      const res = await fetch("api/faculty/uploadMark", {
+        method : "POST",
+        body : JSON.stringify({
+          rollNo,
+          studentName,
+          selectedExam,
+          securedMarks,
+        }),
+      })
+      
+      if(!res.ok){
+        console.error("Failed to upload marks");
+        return;
+      }
+      else{
+        alert("Marks uploaded successfully");
+      }
+    } catch (error) {
+      console.error("Failed to upload marks", error);
+      throw new Error("Failed to upload marks");
+    }
   };
 
   return (
