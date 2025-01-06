@@ -29,7 +29,7 @@ export function Header() {
       <div className="flex items-center space-x-4">
         <Button
           onClick={() => {
-            router.push("/dashboard");
+            router.push("#");
           }}
           variant="ghost"
           size="icon"
