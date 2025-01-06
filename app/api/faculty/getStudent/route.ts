@@ -2,22 +2,20 @@ import dbConnect from "@/lib/dbConnect"; // Ensure this is your correct path
 import Student from "@/models/student"; // Adjust import path accordingly
 import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: NextRequest) => {
-  await dbConnect(); // Connect to the database
-
+export const GET = async (req: NextRequest) => {
   try {
-    const { department, year, section } = await req.json();
-    const errors: { noStudentError?: string } = {};
+    await dbConnect(); // Connect to the database
+    const searchParams = await req.nextUrl.searchParams;
+    const rollNo = searchParams.get("rollNo");
 
-    const students = await Student.find({ department, year, section });
-    if (students.length === 0) {
-      errors.noStudentError = "No Student Found";
-      return NextResponse.json({ errors }, { status: 404 });
+    const student = await Student.findOne({ rollNo }).select("name _id");
+    if (!student) {
+      return NextResponse.json({ error: "No Student Found" }, { status: 404 });
     }
 
-    return NextResponse.json({ result: students }, { status: 200 });
+    return NextResponse.json(student, { status: 200 });
   } catch (error) {
     console.error("Error fetching students:", error);
-    return NextResponse.json({ backendError: "An unexpected error occurred" }, { status: 500 });
+    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
   }
 }

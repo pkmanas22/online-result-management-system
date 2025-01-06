@@ -1,49 +1,48 @@
 import dbConnect from "@/lib/dbConnect"; // Ensure this is your correct path
-import Marks from "@/models/marks"; // Adjust import path accordingly
-import Exam from "@/models/exam"; // Assuming "exam" model is used to define the exam structure
+import Mark from "@/models/marks"; // Adjust import path accordingly
 import { NextRequest, NextResponse } from "next/server";
-import Student from "@/models/student";
 
 export const POST = async (req: NextRequest) => {
-  await dbConnect(); // Connect to the database
-
   try {
-    const { rollNo, selectedExam, securedMarks, } = await req.json();
-    const errors: { examError?: string } = {};
+    await dbConnect(); // Connect to the database
 
-    // Fetching the exam document using the provided exam name
-    const existingExam = await Exam.findOne({
-      selectedExam
-    });
+    const body = await req.json();
+    const { examId, studentId, securedMarks } = body;
 
-    if (!existingExam) {
-      errors.examError = "Exam not found";
-      return NextResponse.json({ errors }, { status: 404 });
+    // Validate input
+    if (!examId || !studentId || securedMarks === undefined) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
-    // Checking if marks are already uploaded for the current exam
-    const isAlready = await Marks.find({ exam: existingExam._id });
+    // Create or update mark entry
+    const existingMark = await Mark.findOne({ examId, studentId });
 
-    if (isAlready.length !== 0) {
-      errors.examError = "Marks have already been uploaded for this exam";
-      return NextResponse.json({ errors }, { status: 400 });
-    }
-
-    const student = await Student.findOne({ rollNo });
-    // Uploading mark
-      const newMarks = new Marks({
-        student: student._id,
-        exam: selectedExam,
-        marks: securedMarks,
+    if (existingMark) {
+      // Update marks if record already exists
+      existingMark.securedMarks = securedMarks;
+      await existingMark.save();
+    } else {
+      // Create a new record if none exists
+      const newMark = new Mark({
+        examId,
+        studentId,
+        securedMarks,
       });
-      await newMarks.save();
+      await newMark.save();
+    }
 
-    return NextResponse.json({
-      message: "Marks uploaded successfully",
-    }, { status: 200 });
-
+    return NextResponse.json(
+      { message: "Marks uploaded successfully" },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error uploading marks:", error);
-    return NextResponse.json({ backendError: "An unexpected error occurred" }, { status: 500 });
+    return NextResponse.json(
+      { error: "An unexpected error occurred" },
+      { status: 500 }
+    );
   }
-}
+};

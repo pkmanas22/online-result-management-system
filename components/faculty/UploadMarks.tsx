@@ -17,87 +17,118 @@ import { useSession } from "next-auth/react";
 interface Exam {
   _id: string;
   examName: string;
-  subjectCode: string;
+  subject: string;
   department: string;
   totalMarks: number;
-  year: string;
   date: string;
+}
+
+interface Student {
+  _id: string;
+  name: string;
 }
 
 export function UploadMarks() {
   const [rollNo, setRollNo] = useState("");
-  const [studentName, setStudentName] = useState("");
+  const [student, setStudent] = useState<Student | null>(null);
   const [exams, setExams] = useState<Exam[]>([]);
   const [selectedExam, setSelectedExam] = useState<string>("");
   const [securedMarks, setSecuredMarks] = useState("");
-  const {data : session} = useSession();
+  const [facultyDetails, setFacultyDetails] = useState<{
+    department: string;
+    subject: string;
+  } | null>(null);
+  const { data: session } = useSession();
 
   useEffect(() => {
-    // Simulate fetching exams
-    const mockExams: Exam[] = [
-      {
-        _id: "exam1",
-        examName: "Mathematics",
-        subjectCode: "MATH101",
-        department: "Science",
-        totalMarks: 100,
-        year: "2025",
-        date: "2025-01-10",
-      },
-      {
-        _id: "exam2",
-        examName: "Physics",
-        subjectCode: "PHY101",
-        department: "Science",
-        totalMarks: 100,
-        year: "2025",
-        date: "2025-01-15",
-      },
-    ];
-    setExams(mockExams);
-  }, []);
-
-  useEffect(() => {
-    try {
-      if (session && session.user) {
-        fetch(`api/student/name&id=${session.user.id}`)
-          .then((res) => res.json())
-          .then((data) => {
-            setStudentName(data.name);
-          })
-          .catch((error) => {
-            console.error("Error fetching the name:", error);
+    if (session && session.user) {
+      const fetchFacultyDetails = async () => {
+        try {
+          const res = await fetch(`/api/profile`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              id: session.user?.id,
+              role: "faculty",
+            }),
           });
-      }
-    } catch (error) {
-      console.error("Error in useEffect:", error);
+
+          if (!res.ok) {
+            throw new Error("Failed to fetch faculty details");
+          }
+
+          const data = await res.json();
+          setFacultyDetails(data.user);
+        } catch (error) {
+          console.error("Error fetching faculty details:", error);
+        }
+      };
+
+      fetchFacultyDetails();
+    }
+  }, [session]);
+
+  useEffect(() => {
+    if (facultyDetails) {
+      const { department, subject } = facultyDetails;
+      fetch(`/api/faculty/exams?department=${department}&subject=${subject}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setExams(data.exams);
+        })
+        .catch((error) => {
+          console.error("Error fetching exams:", error);
+        });
+    }
+  }, [facultyDetails]);
+
+  useEffect(() => {
+    if (rollNo) {
+      // Fetch the student details based on the roll number
+      fetch(`/api/faculty/getStudent?rollNo=${rollNo}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data) {
+            setStudent(data); // Set student object directly
+          } else {
+            setStudent(null);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching student details:", error);
+        });
     }
   }, [rollNo]);
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch("api/faculty/uploadMark", {
-        method : "POST",
-        body : JSON.stringify({
-          rollNo,
-          studentName,
-          selectedExam,
+      const res = await fetch("/api/faculty/uploadMark", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          examId: selectedExam,
+          studentId: student ? student._id : "",
           securedMarks,
         }),
-      })
-      
-      if(!res.ok){
+      });
+
+      if (!res.ok) {
         console.error("Failed to upload marks");
         return;
       }
-      else{
-        alert("Marks uploaded successfully");
-      }
+
+      alert("Marks uploaded successfully");
+      setRollNo("");
+      setSelectedExam("");
+      setSecuredMarks("");
+      setStudent(null); // Clear student details after submission
     } catch (error) {
       console.error("Failed to upload marks", error);
-      throw new Error("Failed to upload marks");
     }
   };
 
@@ -117,10 +148,10 @@ export function UploadMarks() {
               required
             />
           </div>
-          {studentName && (
+          {student && (
             <div className="space-y-2">
               <Label>Student Name</Label>
-              <p className="text-sm font-medium">{studentName}</p>
+              <p className="text-sm font-medium">{student.name}</p>
             </div>
           )}
           <div className="space-y-2">
@@ -132,7 +163,7 @@ export function UploadMarks() {
               <SelectContent>
                 {exams.map((exam) => (
                   <SelectItem key={exam._id} value={exam._id}>
-                    {exam.examName} - {exam.subjectCode}
+                    {exam.examName}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -141,16 +172,22 @@ export function UploadMarks() {
           {selectedExam && (
             <>
               <div className="space-y-2">
-                <Label>Department: </Label>
-                <span className="text-sm font-medium">
+                <Label>Department</Label>
+                <p className="text-sm font-medium">
                   {exams.find((exam) => exam._id === selectedExam)?.department}
-                </span>
+                </p>
               </div>
               <div className="space-y-2">
-                <Label>Total Marks: </Label>
-                <span className="text-sm font-medium">
+                <Label>Subject</Label>
+                <p className="text-sm font-medium">
+                  {exams.find((exam) => exam._id === selectedExam)?.subject}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label>Total Marks</Label>
+                <p className="text-sm font-medium">
                   {exams.find((exam) => exam._id === selectedExam)?.totalMarks}
-                </span>
+                </p>
               </div>
             </>
           )}

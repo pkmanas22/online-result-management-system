@@ -2,18 +2,20 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const marksSchema = new Schema({
-  exam: {
+  examId: {
     type: Schema.Types.ObjectId,
     ref: "exam",
   },
-  student: {
+  studentId: {
     type: Schema.Types.ObjectId,
     ref: "student",
   },
-  marks: {
+  securedMarks: {
     type: Number,
     default: 0,
   },
 });
 
-export default mongoose.model("marks", marksSchema);
+const Mark = mongoose.models.Mark || mongoose.model("Mark", marksSchema);
+
+export default Mark;
