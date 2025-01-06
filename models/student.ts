@@ -10,6 +10,10 @@ const studentSchema = new Schema({
     required: true,
     unique: true,
   },
+  rollNo: {
+    type: String,
+    required: true,
+  },
   password: {
     type: String,
     required: true,

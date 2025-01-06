@@ -23,6 +23,7 @@ export default function RegistrationButton() {
     year: '',
     department: '',
     contactNumber: '',
+    rollNo: '',
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,6 +115,16 @@ export default function RegistrationButton() {
               name="contactNumber"
               type="tel"
               value={formData.contactNumber}
+              onChange={handleChange}
+            />
+          </div>
+          <div>
+            <Label htmlFor="rollNo">Roll Number</Label>
+            <Input
+              id="rollNo"
+              name="rollNo"
+              type="tel"
+              value={formData.rollNo}
               onChange={handleChange}
             />
           </div>
