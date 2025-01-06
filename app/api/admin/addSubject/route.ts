@@ -1,5 +1,5 @@
 import dbConnect from "@/lib/dbConnect";
-import subject from "@/models/subject";
+import Subject from "@/models/subject";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req : NextRequest) => {
@@ -11,22 +11,13 @@ export const POST = async (req : NextRequest) => {
     // Validation
     if (!subjectName || !subjectCode || !department) {
       return NextResponse.json(
-        { subjectError: "All fields are required" },
-        { status: 400 }
-      );
-    }
-
-    // Check if the subject already exists
-    const existingSubject = await subject.findOne({ subjectCode });
-    if (existingSubject) {
-      return NextResponse.json(
-        { subjectError: "Given Subject is already added" },
+        { error: "All fields are required" },
         { status: 400 }
       );
     }
 
     // Create a new subject
-    const newSubject = new subject({
+    const newSubject = new Subject({
       subjectName,
       subjectCode,
       department,
@@ -41,12 +32,11 @@ export const POST = async (req : NextRequest) => {
       },
       { status: 200 }
     );
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return NextResponse.json(
       {
         success: false,
-        backendError: "An error occurred while adding the subject"
+        error: (error as Error).message || "An error occurred while adding the subject"
       },
       { status: 500 }
     );

@@ -37,4 +37,7 @@ const studentSchema = new Schema({
   }
 });
 
-export default mongoose.model("student", studentSchema);
+// Check if the model already exists to prevent overwriting
+const Student = mongoose.models.Student || mongoose.model("Student", studentSchema);
+
+export default Student;

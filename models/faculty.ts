@@ -18,6 +18,10 @@ const facultySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  subject: {
+    type: String,
+    required: true,
+  },
   contactNumber: {
     type: Number,
   },
@@ -27,4 +31,6 @@ const facultySchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model("faculties", facultySchema);
+const Faculty = mongoose.models.Faculty || mongoose.model("Faculty", facultySchema);
+
+export default Faculty;

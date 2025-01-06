@@ -1,0 +1,1 @@
+export const allDepartments = ["MCA", "BCA", "BBA", "MBA", "B. Tech (IT)", "B. Tech (CS)", "B. Tech (Elec.)", "B. Tech (Mech.)"]

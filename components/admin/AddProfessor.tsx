@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "../ui/input";
 import {
   Select,
@@ -20,6 +20,7 @@ import {
   FormProvider,
   SubmitHandler,
 } from "react-hook-form";
+import { allDepartments } from "@/lib/types";
 
 // Define the interface for form data
 interface AddProfessorFormData {
@@ -28,43 +29,108 @@ interface AddProfessorFormData {
   password: string;
   department: string;
   contactNumber: string;
+  subject: string; // New field for subject selection
 }
 
 const AddProfessor = () => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState({});
-  const [value, setValue] = useState<AddProfessorFormData>({
-    name: "",
-    email: "",
-    password: "",
-    department: "",
-    contactNumber: "",
+  const [error, setError] = useState<string | null>(null);
+  const [subjects, setSubjects] = useState<string[]>([]); // State for storing subjects
+
+  // Initialize react-hook-form with default values
+  const methods = useForm<AddProfessorFormData>({
+    defaultValues: {
+      department: "MCA", // Default department is MCA
+      subject: "", // Empty subject by default
+    },
   });
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+    setValue, // To update form values programmatically
+    watch, // Watch to listen to form values
+  } = methods;
 
-  const departments = ["Computer Science", "Mathematics", "Physics"]; // Example departments
+  // Watch for department change
+  const department = watch("department");
 
-  // Initialize react-hook-form
-  const methods = useForm<AddProfessorFormData>();
-  const { control, handleSubmit } = methods;
+  const fetchSubjects = async (department: string) => {
+    try {
+      // Simulate an API call to fetch subjects based on department
+      const response = await fetch(`/api/subject?department=${department}`);
+      const data = await response.json();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const onSubmit: SubmitHandler<AddProfessorFormData> = (data) => {
-    setError({});
+      if (response.ok) {
+        setSubjects(data.subjects); // Set subjects if the API call is successful
+      } else {
+        setSubjects([]);
+      }
+    } catch (error) {
+      console.error(error);
+      setError("Error fetching subjects");
+    }
+  };
+
+  const onSubmit: SubmitHandler<AddProfessorFormData> = async (data) => {
+    setError(null);
     setLoading(true);
 
-    // Simulate an API call or some action
-    setTimeout(() => {
-      setLoading(false);
-      // Reset form after successful submission
-      setValue({
-        name: "",
-        email: "",
-        password: "",
-        department: "",
-        contactNumber: "",
+    // Extract the form data
+    const { name, email, password, department, contactNumber, subject } = data;
+
+    // Perform API call to add the professor
+    try {
+      const res = await fetch("/api/admin/addFaculty", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          department,
+          contactNumber,
+          subject,
+        }),
       });
-    }, 2000);
+
+      if (!res.ok) {
+        alert("Failed to add professor");
+      } else {
+        alert("Professor added successfully");
+        reset(); // Reset the form after successful submission
+      }
+    } catch (err) {
+      setError("Some error occurred");
+      console.error("Error adding professor:", err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    if (department) {
+      fetchSubjects(department); // Fetch subjects based on the selected department
+      setValue("subject", ""); // Reset the subject field whenever the department changes
+    }
+  }, [department, setValue]); // Now listens to department change
+
+  const handleClear = () => {
+    reset({
+      department: "MCA", // Default department is MCA
+      subject: "", // Empty subject by default
+      contactNumber: "", // Reset contact number
+      name: "", // Reset name
+      email: "", // Reset email
+      password: "", // Reset password
+    });
+    setSubjects([]); // Clear the subjects state
+    setError(null); // Clear any error messages
+  };
+
 
   return (
     <div className="flex flex-col space-y-5 mt-5">
@@ -72,10 +138,10 @@ const AddProfessor = () => {
         <h1>Add Professor</h1>
       </div>
       <div className="bg-white p-6 rounded-xl shadow-md">
-        {/* Wrap the form inside FormProvider to provide context */}
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-4">
+              {/* Name Field */}
               <Controller
                 name="name"
                 control={control}
@@ -84,20 +150,16 @@ const AddProfessor = () => {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Full Name"
-                        {...field}
-                        value={value.name}
-                        onChange={(e) =>
-                          setValue({ ...value, name: e.target.value })
-                        }
-                      />
+                      <Input placeholder="Full Name" {...field} />
                     </FormControl>
-                    <FormMessage></FormMessage>
+                    <FormMessage>
+                      {errors.name && errors.name.message}
+                    </FormMessage>
                   </FormItem>
                 )}
               />
 
+              {/* Email Field */}
               <Controller
                 name="email"
                 control={control}
@@ -106,42 +168,38 @@ const AddProfessor = () => {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input
-                        type="email"
-                        {...field}
-                        value={value.email}
-                        onChange={(e) =>
-                          setValue({ ...value, email: e.target.value })
-                        }
-                      />
+                      <Input type="email" {...field} />
                     </FormControl>
-                    <FormMessage></FormMessage>
+                    <FormMessage>
+                      {errors.email && errors.email.message}
+                    </FormMessage>
                   </FormItem>
                 )}
               />
 
+              {/* Password Field */}
               <Controller
                 name="password"
                 control={control}
                 rules={{ required: "Password is required" }}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>Default Password</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Password"
+                        placeholder="Default Password"
+                        type="password"
                         {...field}
-                        value={value.password}
-                        onChange={(e) =>
-                          setValue({ ...value, password: e.target.value })
-                        }
                       />
                     </FormControl>
-                    <FormMessage></FormMessage>
+                    <FormMessage>
+                      {errors.password && errors.password.message}
+                    </FormMessage>
                   </FormItem>
                 )}
               />
 
+              {/* Department Field */}
               <Controller
                 name="department"
                 control={control}
@@ -152,13 +210,16 @@ const AddProfessor = () => {
                     <FormControl>
                       <Select
                         value={field.value}
-                        onValueChange={(value) => field.onChange(value)}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          setValue("subject", ""); // Reset subject when department changes
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select Department" />
                         </SelectTrigger>
                         <SelectContent>
-                          {departments.map((department, idx) => (
+                          {allDepartments.map((department, idx) => (
                             <SelectItem key={idx} value={department}>
                               {department}
                             </SelectItem>
@@ -166,11 +227,53 @@ const AddProfessor = () => {
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    <FormMessage></FormMessage>
+                    <FormMessage>
+                      {errors.department && errors.department.message}
+                    </FormMessage>
                   </FormItem>
                 )}
               />
 
+              {/* Subject Field */}
+              <Controller
+                name="subject"
+                control={control}
+                rules={{ required: "Subject is required" }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subject</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        disabled={subjects.length === 0} // Disable if no subjects
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Subject" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {subjects.length > 0 ? (
+                            subjects.map((subject, idx) => (
+                              <SelectItem key={idx} value={subject}>
+                                {subject}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem disabled value={"no-subject"}>
+                              No subjects available
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage>
+                      {errors.subject && errors.subject.message}
+                    </FormMessage>
+                  </FormItem>
+                )}
+              />
+
+              {/* Contact Number Field */}
               <Controller
                 name="contactNumber"
                 control={control}
@@ -179,16 +282,11 @@ const AddProfessor = () => {
                   <FormItem>
                     <FormLabel>Contact Number</FormLabel>
                     <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={value.contactNumber}
-                        onChange={(e) =>
-                          setValue({ ...value, contactNumber: e.target.value })
-                        }
-                      />
+                      <Input type="number" {...field} />
                     </FormControl>
-                    <FormMessage></FormMessage>
+                    <FormMessage>
+                      {errors.contactNumber && errors.contactNumber.message}
+                    </FormMessage>
                   </FormItem>
                 )}
               />
@@ -198,31 +296,14 @@ const AddProfessor = () => {
               <Button type="submit" disabled={loading}>
                 {loading ? "Adding..." : "Submit"}
               </Button>
-              <Button
-                type="button"
-                onClick={() => {
-                  setValue({
-                    name: "",
-                    email: "",
-                    password: "",
-                    department: "",
-                    contactNumber: "",
-                  });
-                  setError({});
-                }}
-              >
+              <Button type="button" onClick={handleClear}>
                 Clear
               </Button>
             </div>
 
             {loading && <div className="mt-4">Loading...</div>}
 
-            {error && (
-              <div className="mt-4 text-red-500">
-                {/* {error.emailError || error.backendError} */}
-                Some error occurred
-              </div>
-            )}
+            {error && <div className="mt-4 text-red-500">{error}</div>}
           </form>
         </FormProvider>
       </div>

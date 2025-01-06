@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "../ui/input";
 import {
   Select,
@@ -20,54 +20,117 @@ import {
   FormProvider,
   SubmitHandler,
 } from "react-hook-form";
+import { allDepartments } from "@/lib/types";
 
 // Define the interface for the form data
 interface FormData {
   examName: string;
-  subjectCode: string;
+  subject: string;
   department: string;
   totalMarks: number;
-  year: string;
   date: string;
 }
 
 const AddExam = () => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState({});
-  const [value, setValue] = useState<FormData>({
-    examName: "",
-    subjectCode: "",
-    department: "",
-    totalMarks: 100,
-    year: "",
-    date: "",
+  const [error, setError] = useState<string | null>(null);
+  const [subjects, setSubjects] = useState<string[]>([]); // Store subjects
+
+  // Initialize react-hook-form with default values
+  const methods = useForm<FormData>({
+    defaultValues: {
+      department: "MCA", // Default department
+      subject: "", // Empty subject by default
+    },
   });
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+    watch,
+  } = methods;
 
-  const departments = ["Computer Science", "Mathematics", "Physics"]; // Example departments
-  const years = ["2021", "2022", "2023", "2024"]; // Example years
+  // Watch for department change
+  const department = watch("department");
 
-  // Initialize react-hook-form with the FormData interface
-  const methods = useForm<FormData>();
-  const { control, handleSubmit } = methods;
+  const fetchSubjects = async (department: string) => {
+    try {
+      const response = await fetch(`/api/subject?department=${department}`);
+      const data = await response.json();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const onSubmit: SubmitHandler<FormData> = (data) => {
-    setError({});
+      if (response.ok) {
+        setSubjects(data.subjects); // Set subjects if the API call is successful
+      } else {
+        setSubjects([]);
+      }
+    } catch (error) {
+      console.error(error);
+      setError("Error fetching subjects");
+    }
+  };
+
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    setError(null);
     setLoading(true);
 
-    // Simulate an API call or some action
-    setTimeout(() => {
-      setLoading(false);
-      // Reset form after successful submission
-      setValue({
-        examName: "",
-        subjectCode: "",
-        department: "",
-        totalMarks: 100,
-        year: "",
-        date: "",
+    try {
+      const { examName, subject, department, totalMarks, date } = data;
+      const res = await fetch("/api/admin/addExam", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          examName,
+          subject,
+          department,
+          totalMarks,
+          date,
+        }),
       });
-    }, 2000);
+
+      if (!res.ok) {
+        throw new Error("Failed to add exam");
+      }
+
+      const result = await res.json();
+
+      if (result.success) {
+        alert("Exam added successfully");
+        reset(); // Reset form after successful submission
+        setValue("examName", "")
+        setValue("totalMarks", 0)
+        setValue("date", "")
+      } else {
+        setError(result.error || "Error adding exam");
+      }
+    } catch (err) {
+      setError("Error adding exam");
+      console.error("Error adding exam:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (department) {
+      fetchSubjects(department); // Fetch subjects based on the selected department
+      setValue("subject", ""); // Reset the subject field whenever the department changes
+    }
+  }, [department, setValue]);
+
+  const handleClear = () => {
+    reset({
+      department: "MCA", // Default department
+      subject: "", // Empty subject
+      examName: "",
+      totalMarks: 0,
+      date: "",
+    });
+    setSubjects([]);
+    setError(null);
   };
 
   return (
@@ -76,10 +139,10 @@ const AddExam = () => {
         <h1>Add Exam</h1>
       </div>
       <div className="bg-white p-6 rounded-xl shadow-md">
-        {/* Wrap the form inside FormProvider to provide context */}
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-4">
+              {/* Exam Name Field */}
               <Controller
                 name="examName"
                 control={control}
@@ -88,42 +151,16 @@ const AddExam = () => {
                   <FormItem>
                     <FormLabel>Exam Name</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Exam Name"
-                        {...field}
-                        value={value.examName}
-                        onChange={(e) =>
-                          setValue({ ...value, examName: e.target.value })
-                        }
-                      />
+                      <Input placeholder="Exam Name" {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage>
+                      {errors.examName && errors.examName.message}
+                    </FormMessage>
                   </FormItem>
                 )}
               />
 
-              <Controller
-                name="subjectCode"
-                control={control}
-                rules={{ required: "Subject Code is required" }}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Subject Code</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Subject Code"
-                        {...field}
-                        value={value.subjectCode}
-                        onChange={(e) =>
-                          setValue({ ...value, subjectCode: e.target.value })
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
+              {/* Department Field */}
               <Controller
                 name="department"
                 control={control}
@@ -134,13 +171,16 @@ const AddExam = () => {
                     <FormControl>
                       <Select
                         value={field.value}
-                        onValueChange={(value) => field.onChange(value)}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          setValue("subject", ""); // Reset subject when department changes
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select Department" />
                         </SelectTrigger>
                         <SelectContent>
-                          {departments.map((department, idx) => (
+                          {allDepartments.map((department, idx) => (
                             <SelectItem key={idx} value={department}>
                               {department}
                             </SelectItem>
@@ -148,11 +188,53 @@ const AddExam = () => {
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage>
+                      {errors.department && errors.department.message}
+                    </FormMessage>
                   </FormItem>
                 )}
               />
 
+              {/* Subject Field */}
+              <Controller
+                name="subject"
+                control={control}
+                rules={{ required: "Subject is required" }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subject</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        disabled={subjects.length === 0} // Disable if no subjects
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Subject" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {subjects.length > 0 ? (
+                            subjects.map((subject, idx) => (
+                              <SelectItem key={idx} value={subject}>
+                                {subject}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem disabled value="no-subject">
+                              No subjects available
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage>
+                      {errors.subject && errors.subject.message}
+                    </FormMessage>
+                  </FormItem>
+                )}
+              />
+
+              {/* Total Marks Field */}
               <Controller
                 name="totalMarks"
                 control={control}
@@ -161,52 +243,16 @@ const AddExam = () => {
                   <FormItem>
                     <FormLabel>Total Marks</FormLabel>
                     <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={value.totalMarks}
-                        onChange={(e) =>
-                          setValue({
-                            ...value,
-                            totalMarks: parseInt(e.target.value),
-                          })
-                        }
-                      />
+                      <Input type="number" {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage>
+                      {errors.totalMarks && errors.totalMarks.message}
+                    </FormMessage>
                   </FormItem>
                 )}
               />
 
-              <Controller
-                name="year"
-                control={control}
-                rules={{ required: "Year is required" }}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Year</FormLabel>
-                    <FormControl>
-                      <Select
-                        value={field.value}
-                        onValueChange={(value) => field.onChange(value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Year" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {years.map((year, idx) => (
-                            <SelectItem key={idx} value={year}>
-                              {year}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
+              {/* Date Field */}
               <Controller
                 name="date"
                 control={control}
@@ -215,16 +261,11 @@ const AddExam = () => {
                   <FormItem>
                     <FormLabel>Date</FormLabel>
                     <FormControl>
-                      <Input
-                        type="date"
-                        {...field}
-                        value={value.date}
-                        onChange={(e) =>
-                          setValue({ ...value, date: e.target.value })
-                        }
-                      />
+                      <Input type="date" {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage>
+                      {errors.date && errors.date.message}
+                    </FormMessage>
                   </FormItem>
                 )}
               />
@@ -234,32 +275,14 @@ const AddExam = () => {
               <Button type="submit" disabled={loading}>
                 {loading ? "Adding..." : "Submit"}
               </Button>
-              <Button
-                type="button"
-                onClick={() => {
-                  setValue({
-                    examName: "",
-                    subjectCode: "",
-                    department: "",
-                    totalMarks: 100,
-                    year: "",
-                    date: "",
-                  });
-                  setError({});
-                }}
-              >
+              <Button type="button" onClick={handleClear}>
                 Clear
               </Button>
             </div>
 
             {loading && <div className="mt-4">Loading...</div>}
 
-            {error && (
-              <div className="mt-4 text-red-500">
-                {/* {error.emailError || error.backendError} */}
-                Some error occurred
-              </div>
-            )}
+            {error && <div className="mt-4 text-red-500">{error}</div>}
           </form>
         </FormProvider>
       </div>

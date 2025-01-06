@@ -20,6 +20,7 @@ import {
   FormProvider,
   SubmitHandler,
 } from "react-hook-form";
+import { allDepartments } from "@/lib/types";
 
 // Define the interface for form data
 interface AddSubjectFormData {
@@ -30,34 +31,56 @@ interface AddSubjectFormData {
 
 const AddSubject = () => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState({});
-  const [value, setValue] = useState<AddSubjectFormData>({
-    subjectName: "",
-    subjectCode: "",
-    department: "",
-  });
-
-  const departments = ["Computer Science", "Mathematics", "Physics"]; // Example departments
+  const [error, setError] = useState<string | null>(null); // Error state to hold error message
 
   // Initialize react-hook-form
-  const methods = useForm<AddSubjectFormData>();
-  const { control, handleSubmit } = methods;
+  const methods = useForm<AddSubjectFormData>({
+    defaultValues: {
+      subjectName: "",
+      subjectCode: "",
+      department: "",
+    },
+  });
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const onSubmit: SubmitHandler<AddSubjectFormData> = (data) => {
-    setError({});
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = methods;
+
+  const onSubmit: SubmitHandler<AddSubjectFormData> = async (data) => {
+    setError(null); // Reset error state
     setLoading(true);
 
-    // Simulate an API call or some action
-    setTimeout(() => {
-      setLoading(false);
-      // Reset form after successful submission
-      setValue({
-        subjectName: "",
-        subjectCode: "",
-        department: "",
+    try {
+      const { subjectName, subjectCode, department } = data;
+
+      const res = await fetch("/api/admin/addSubject", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          subjectName,
+          subjectCode,
+          department,
+        }),
       });
-    }, 2000);
+
+      if (!res.ok) {
+        alert("Failed to add subject");
+      } else {
+        alert("Subject added successfully");
+        reset(); // Reset the form after successful submission
+      }
+    } catch (err) {
+      // Catch error from fetch or from server response
+      setError("Some error occurred");
+      console.error("Error adding subject:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -78,16 +101,11 @@ const AddSubject = () => {
                   <FormItem>
                     <FormLabel>Subject Name</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Subject Name"
-                        {...field}
-                        value={value.subjectName}
-                        onChange={(e) =>
-                          setValue({ ...value, subjectName: e.target.value })
-                        }
-                      />
+                      <Input placeholder="Subject Name" {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage>
+                      {errors.subjectName && errors.subjectName.message}
+                    </FormMessage>
                   </FormItem>
                 )}
               />
@@ -100,16 +118,11 @@ const AddSubject = () => {
                   <FormItem>
                     <FormLabel>Subject Code</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Subject Code"
-                        {...field}
-                        value={value.subjectCode}
-                        onChange={(e) =>
-                          setValue({ ...value, subjectCode: e.target.value })
-                        }
-                      />
+                      <Input placeholder="Subject Code" {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage>
+                      {errors.subjectCode && errors.subjectCode.message}
+                    </FormMessage>
                   </FormItem>
                 )}
               />
@@ -124,13 +137,13 @@ const AddSubject = () => {
                     <FormControl>
                       <Select
                         value={field.value}
-                        onValueChange={(value) => field.onChange(value)}
+                        onValueChange={field.onChange}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select Department" />
                         </SelectTrigger>
                         <SelectContent>
-                          {departments.map((department, idx) => (
+                          {allDepartments.map((department, idx) => (
                             <SelectItem key={idx} value={department}>
                               {department}
                             </SelectItem>
@@ -138,7 +151,9 @@ const AddSubject = () => {
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage>
+                      {errors.department && errors.department.message}
+                    </FormMessage>
                   </FormItem>
                 )}
               />
@@ -151,12 +166,8 @@ const AddSubject = () => {
               <Button
                 type="button"
                 onClick={() => {
-                  setValue({
-                    subjectName: "",
-                    subjectCode: "",
-                    department: "",
-                  });
-                  setError({});
+                  reset(); // Reset form values on clear
+                  setError(null); // Reset error state
                 }}
               >
                 Clear
@@ -167,8 +178,7 @@ const AddSubject = () => {
 
             {error && (
               <div className="mt-4 text-red-500">
-                {/* {error.emailError || error.backendError} */}
-                Some error occurred
+                {error} {/* Display the error message */}
               </div>
             )}
           </form>

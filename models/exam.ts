@@ -6,11 +6,11 @@ const examSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
-  subjectCode: {
+  department: {
     type: String,
     required: true,
   },
-  department: {
+  subject: {
     type: String,
     required: true,
   },
@@ -18,14 +18,12 @@ const examSchema = new mongoose.Schema({
     type: Number,
     default: 100,
   },
-  year: {
-    type: String,
-    required: true,
-  },
   date: {
     type: String,
     required: true,
   },
 });
 
-export default mongoose.model("exam", examSchema);
+const Exam = mongoose.models.Exam || mongoose.model("Exam", examSchema);
+
+export default Exam;

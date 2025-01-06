@@ -16,4 +16,7 @@ const subjectSchema = new Schema({
   }
 });
 
-export default mongoose.model("subject", subjectSchema);
+// Check if the model already exists to prevent overwriting
+const Subject = mongoose.models.Subject || mongoose.model("Subject", subjectSchema);
+
+export default Subject;

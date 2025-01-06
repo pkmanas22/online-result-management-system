@@ -32,7 +32,7 @@ export function AppSidebar({
   return (
     <Sidebar>
       <SidebarHeader className="flex items-center justify-center py-8 px-3">
-        <h1>ORMS</h1>
+        <h1>OUTR</h1>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

@@ -22,4 +22,7 @@ const adminSchema = new mongoose.Schema(
   { strict: false }
 );
 
-export default mongoose.model("admin", adminSchema);
+// Check if the model already exists to prevent overwriting
+const Admin = mongoose.models.Admin || mongoose.model("Admin", adminSchema);
+
+export default Admin;

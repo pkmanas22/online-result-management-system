@@ -1,52 +1,45 @@
-import dbConnect from "@/lib/dbConnect"; // Ensure this is your correct path
-import Exam from "@/models/exam"; // Adjust import path accordingly
+import dbConnect from "@/lib/dbConnect";
+import Exam from "@/models/exam";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
-  await dbConnect(); // Connect to the database
-
   try {
-    const { subjectCode, department, year, section, date, examname, totalMarks } = await req.json();
-    const errors: { testError?: string } = {};
+    await dbConnect(); // Ensure the database connection
 
-    // Checking if the exam already exists
-    const existingExam = await Exam.findOne({
-      subjectCode,
-      department,
-      year,
-      section,
-      examname,
-    });
+    const { examName, department, subject, totalMarks, date } = await req.json();
 
-    if (existingExam) {
-      errors.testError = "The exam has already been created";
-      return NextResponse.json({ errors }, { status: 400 });
+    // Validate the required fields
+    if (!examName || !department || !subject || !totalMarks || !date) {
+      return NextResponse.json(
+        { error: "All fields are required" },
+        { status: 400 }
+      );
     }
 
-    // Creating the new exam
+    // Create a new exam
     const newExam = new Exam({
-      subjectCode,
+      examName,
       department,
-      year,
-      section,
-      date,
-      examname,
+      subject,
       totalMarks,
+      date,
     });
 
+    // Save the exam to the database
     await newExam.save();
 
-    // You can fetch the students for this exam if needed
-    // const students = await Student.find({ department, year, section });
-
-    return NextResponse.json({
-      success: true,
-      message: "Exam added successfully",
-      response: newExam,
-    }, { status: 200 });
-
+    return NextResponse.json(
+      { success: true, message: "Exam added successfully" },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error("Error creating exam:", error);
-    return NextResponse.json({ backendError: "An unexpected error occurred" }, { status: 500 });
+    console.error("Error adding exam:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: (error as Error).message || "An error occurred while adding the exam",
+      },
+      { status: 500 }
+    );
   }
-}
+};

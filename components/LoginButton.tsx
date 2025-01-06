@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { signIn } from "next-auth/react";
 
 interface LoginButtonProps {
   role: string;
@@ -22,32 +23,32 @@ export default function LoginButton({ role }: LoginButtonProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username: email, password, role }),
-      });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Handle successful login
-        console.log("Login successful", data);
-        setOpen(false);
-      } else {
-        // Handle errors
-        console.error("Login failed", data.errors);
-      }
-    } catch (error) {
-      console.error("An error occurred", error);
+    if (!email || !password) {
+      alert("Email & Password are required");
+      return;
     }
-  };
 
+    setEmail("");
+    setPassword("");
+
+    const res = await signIn("credentials", {
+      email,
+      password,
+      role: role.toLowerCase(),
+      callbackUrl: `/${role.toLowerCase()}`,
+      redirect: true,
+    });
+
+    if (res?.error) {
+      alert("Invalid credentials");
+      return;
+    }
+    // console.log("Form submitted");
+  };
+  
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
