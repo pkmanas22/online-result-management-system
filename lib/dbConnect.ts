@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import Exam from "@/models/exam"
 import { NextResponse } from "next/server";
 
 export default async function dbConnect(){
@@ -10,14 +9,5 @@ export default async function dbConnect(){
         console.error("Error connecting to MongoDB:", error);
         throw new Error("Error connecting to MongoDB");
     }
-    const exam = await Exam.create({
-        // examname: "mid term",
-        // subjectCode: ""
-        // department: 
-        // totalMarks: 
-        // year: 
-        // date: 
-    })
     return NextResponse.next();
-    
 }

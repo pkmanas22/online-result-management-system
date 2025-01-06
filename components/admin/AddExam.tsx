@@ -14,12 +14,27 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useForm, Controller, FormProvider } from "react-hook-form";
+import {
+  useForm,
+  Controller,
+  FormProvider,
+  SubmitHandler,
+} from "react-hook-form";
+
+// Define the interface for the form data
+interface FormData {
+  examName: string;
+  subjectCode: string;
+  department: string;
+  totalMarks: number;
+  year: string;
+  date: string;
+}
 
 const AddExam = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState({});
-  const [value, setValue] = useState({
+  const [value, setValue] = useState<FormData>({
     examName: "",
     subjectCode: "",
     department: "",
@@ -31,11 +46,12 @@ const AddExam = () => {
   const departments = ["Computer Science", "Mathematics", "Physics"]; // Example departments
   const years = ["2021", "2022", "2023", "2024"]; // Example years
 
-  // Initialize react-hook-form
-  const methods = useForm();
+  // Initialize react-hook-form with the FormData interface
+  const methods = useForm<FormData>();
   const { control, handleSubmit } = methods;
 
-  const onSubmit = (data) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const onSubmit: SubmitHandler<FormData> = (data) => {
     setError({});
     setLoading(true);
 
@@ -150,7 +166,10 @@ const AddExam = () => {
                         {...field}
                         value={value.totalMarks}
                         onChange={(e) =>
-                          setValue({ ...value, totalMarks: parseInt(e.target.value) })
+                          setValue({
+                            ...value,
+                            totalMarks: parseInt(e.target.value),
+                          })
                         }
                       />
                     </FormControl>

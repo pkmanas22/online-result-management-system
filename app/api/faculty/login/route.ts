@@ -43,6 +43,7 @@ export const POST = async (req : NextRequest) => {
       { result: existingFaculty, token },
       { status: 200 }
     );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     console.error("Login Error:");
     return NextResponse.json(

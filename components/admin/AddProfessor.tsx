@@ -14,12 +14,26 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useForm, Controller, FormProvider } from "react-hook-form";
+import {
+  useForm,
+  Controller,
+  FormProvider,
+  SubmitHandler,
+} from "react-hook-form";
+
+// Define the interface for form data
+interface AddProfessorFormData {
+  name: string;
+  email: string;
+  password: string;
+  department: string;
+  contactNumber: string;
+}
 
 const AddProfessor = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState({});
-  const [value, setValue] = useState({
+  const [value, setValue] = useState<AddProfessorFormData>({
     name: "",
     email: "",
     password: "",
@@ -30,14 +44,11 @@ const AddProfessor = () => {
   const departments = ["Computer Science", "Mathematics", "Physics"]; // Example departments
 
   // Initialize react-hook-form
-  const methods = useForm();
-  const {
-    control,
-    handleSubmit,
-  } = methods;
+  const methods = useForm<AddProfessorFormData>();
+  const { control, handleSubmit } = methods;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const onSubmit = (data) => {
+  const onSubmit: SubmitHandler<AddProfessorFormData> = (data) => {
     setError({});
     setLoading(true);
 
@@ -82,8 +93,7 @@ const AddProfessor = () => {
                         }
                       />
                     </FormControl>
-                    <FormMessage>
-                    </FormMessage>
+                    <FormMessage></FormMessage>
                   </FormItem>
                 )}
               />
@@ -105,8 +115,7 @@ const AddProfessor = () => {
                         }
                       />
                     </FormControl>
-                    <FormMessage>
-                    </FormMessage>
+                    <FormMessage></FormMessage>
                   </FormItem>
                 )}
               />
@@ -128,8 +137,7 @@ const AddProfessor = () => {
                         }
                       />
                     </FormControl>
-                    <FormMessage>
-                    </FormMessage>
+                    <FormMessage></FormMessage>
                   </FormItem>
                 )}
               />
@@ -158,8 +166,7 @@ const AddProfessor = () => {
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    <FormMessage>
-                    </FormMessage>
+                    <FormMessage></FormMessage>
                   </FormItem>
                 )}
               />
@@ -181,8 +188,7 @@ const AddProfessor = () => {
                         }
                       />
                     </FormControl>
-                    <FormMessage>
-                    </FormMessage>
+                    <FormMessage></FormMessage>
                   </FormItem>
                 )}
               />

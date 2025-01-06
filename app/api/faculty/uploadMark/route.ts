@@ -3,7 +3,7 @@ import Marks from "@/models/marks"; // Adjust import path accordingly
 import Exam from "@/models/exam"; // Assuming "exam" model is used to define the exam structure
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   await dbConnect(); // Connect to the database
 
   try {

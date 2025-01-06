@@ -1,19 +1,26 @@
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function middleware(req : NextRequest) {
+declare module "next/server" {
+  interface NextRequest {
+    userId?: string;
+  }
+}
+
+export async function middleware(req: NextRequest) {
   try {
     const token = req.headers.get("authorization")?.split(" ")[1];
     if (token) {
-      const decodedData = jwt.verify(token, "sEcReT");
-      // @ts-ignore
-        req.userId = decodedData?.id;
+      const decodedData = jwt.verify(token, "sEcReT"); // Use 'any' or specify the exact type of the decoded data
+      if (decodedData) {
+        req.userId = (decodedData as jwt.JwtPayload)?.id; // Now TypeScript knows that 'userId' exists on 'req'
+      }
     }
   } catch (error) {
     console.error("Authentication error:", error);
     return new NextResponse("Unauthorized", { status: 401 });
   }
-  
+
   // Proceed to the next middleware or route handler
   return NextResponse.next();
 }

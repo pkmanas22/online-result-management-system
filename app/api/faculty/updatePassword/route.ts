@@ -3,7 +3,7 @@ import dbConnect from "@/lib/dbConnect"; // Ensure this is your correct path
 import Faculty from "@/models/faculty"; // Adjust import path accordingly
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   await dbConnect(); // Connect to the database
 
   try {

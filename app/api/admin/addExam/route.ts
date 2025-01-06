@@ -1,9 +1,8 @@
 import dbConnect from "@/lib/dbConnect"; // Ensure this is your correct path
 import Exam from "@/models/exam"; // Adjust import path accordingly
-import Student from "@/models/student"; // Adjust import path accordingly
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   await dbConnect(); // Connect to the database
 
   try {
@@ -38,7 +37,7 @@ export async function POST(req: NextRequest) {
     await newExam.save();
 
     // You can fetch the students for this exam if needed
-    const students = await Student.find({ department, year, section });
+    // const students = await Student.find({ department, year, section });
 
     return NextResponse.json({
       success: true,

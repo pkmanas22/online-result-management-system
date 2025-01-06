@@ -5,7 +5,7 @@ import Subject from "@/models/subject"; // Adjust import path accordingly
 import Marks from "@/models/marks"; // Adjust import path accordingly
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   await dbConnect(); // Connect to the database
 
   try {
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
           totalMarks: test.totalMarks,
           subjectName: subject?.subjectName,
           subjectCode: test.subjectCode,
-          test: test.examname,
+          test: test.examName,
         });
       }
     }

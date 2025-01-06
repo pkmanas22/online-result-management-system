@@ -14,12 +14,24 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useForm, Controller, FormProvider } from "react-hook-form";
+import {
+  useForm,
+  Controller,
+  FormProvider,
+  SubmitHandler,
+} from "react-hook-form";
+
+// Define the interface for form data
+interface AddSubjectFormData {
+  subjectName: string;
+  subjectCode: string;
+  department: string;
+}
 
 const AddSubject = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState({});
-  const [value, setValue] = useState({
+  const [value, setValue] = useState<AddSubjectFormData>({
     subjectName: "",
     subjectCode: "",
     department: "",
@@ -28,10 +40,11 @@ const AddSubject = () => {
   const departments = ["Computer Science", "Mathematics", "Physics"]; // Example departments
 
   // Initialize react-hook-form
-  const methods = useForm();
+  const methods = useForm<AddSubjectFormData>();
   const { control, handleSubmit } = methods;
 
-  const onSubmit = (data) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const onSubmit: SubmitHandler<AddSubjectFormData> = (data) => {
     setError({});
     setLoading(true);
 
