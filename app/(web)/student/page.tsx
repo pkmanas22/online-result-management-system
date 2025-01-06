@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Users, BarChart } from "lucide-react";
+import { Clipboard, Lock } from "lucide-react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Header } from "@/components/header";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -9,11 +9,11 @@ import { UpdatePassword } from "@/components/UpdatePassword";
 import GetMarksheet from "@/components/student/GetMarksheet";
 
 export default function Dashboard() {
-  const [activeView, setActiveView] = useState("");
+  const [activeView, setActiveView] = useState("getMarksheet");
 
   const sidebarItems = [
-    { icon: BarChart, label: "Get Marksheet", value: "getMarksheet" },
-    { icon: Users, label: "Update Password", value: "updatePassword" },
+    { icon: Clipboard, label: "Get Marksheet", value: "getMarksheet" },
+    { icon: Lock, label: "Update Password", value: "updatePassword" },
   ];
 
   return (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Users, BarChart } from "lucide-react";
+import { Lock, Clipboard } from "lucide-react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Header } from "@/components/header";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -9,11 +9,11 @@ import { UploadMarks } from "@/components/faculty/UploadMarks";
 import { UpdatePassword } from "@/components/UpdatePassword";
 
 export default function Dashboard() {
-  const [activeView, setActiveView] = useState("");
+  const [activeView, setActiveView] = useState("uploadMarks");
 
   const sidebarItems = [
-    { icon: BarChart, label: "Upload marks", value: "uploadMarks" },
-    { icon: Users, label: "Update Password", value: "updatePassword" },
+    { icon: Clipboard, label: "Upload marks", value: "uploadMarks" },
+    { icon: Lock, label: "Update Password", value: "updatePassword" },
   ];
 
   return (

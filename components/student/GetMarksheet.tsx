@@ -92,84 +92,92 @@ export default function GetMarksheet() {
       {/* Show Card only if showCard is true */}
       {showCard && !loading && (
         <Card className="w-full max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
-          <CardContent className="p-6">
-            <CardHeader className="border-b border-gray-300 py-4 px-6 text-center">
-              <h2 className="text-3xl font-bold text-indigo-600">
-                Odisha University of Research & Technology, Bhubaneswar
-              </h2>
-              <p className="text-lg text-gray-500 mt-1">
-                ExamEase Portal - OUTR
-              </p>
-            </CardHeader>
-            {marksheet && (
-              <div>
-                <h3 className="text-xl font-semibold my-4 text-center">
-                  Marksheet for {marksheet[0].examDetails.department} -{" "}
-                  {marksheet[0].examDetails.examName}
-                </h3>
-                <Table className="shadow-md rounded-md overflow-hidden">
-                  <TableHeader>
-                    <TableRow className="bg-gray-100">
-                      <TableHead className="py-3 px-4 text-sm text-left">
-                        Subject
-                      </TableHead>
-                      <TableHead className="py-3 px-4 text-sm text-left">
-                        Subject Code
-                      </TableHead>
-                      <TableHead className="py-3 px-4 text-sm text-left">
-                        Total Marks
-                      </TableHead>
-                      <TableHead className="py-3 px-4 text-sm text-left">
-                        Marks Obtained
-                      </TableHead>
-                      <TableHead className="py-3 px-4 text-sm text-left">
-                        Grade
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {marksheet.map((mark) => {
-                      return (
-                        <TableRow key={mark.examId} className="border-t">
-                          <TableCell className="py-3 px-4 text-sm">
-                            {mark.examDetails.subject.split("-")[0]}
-                          </TableCell>
-                          <TableCell className="py-3 px-4 text-sm">
-                            {mark.examDetails.subject.split("-")[1]}
-                          </TableCell>
-                          <TableCell className="py-3 px-4 text-sm">
-                            {mark.examDetails.totalMarks}
-                          </TableCell>
-                          <TableCell className="py-3 px-4 text-sm">
-                            {mark.securedMarks}
-                          </TableCell>
-                          <TableCell className="py-3 px-4 text-sm">
-                            {getGrade(mark.securedMarks)}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-                <div className="mt-6 text-center text-lg font-medium text-gray-700">
-                  <p>
-                    Total Percentage: {calculateTotalPercentage(marksheet)} %
+          {marksheet ? (
+            <>
+              <CardContent className="p-6">
+                <CardHeader className="border-b border-gray-300 py-4 px-6 text-center">
+                  <h2 className="text-3xl font-bold text-indigo-600">
+                    Odisha University of Research & Technology, Bhubaneswar
+                  </h2>
+                  <p className="text-lg text-gray-500 mt-1">
+                    ExamEase Portal - OUTR
                   </p>
+                </CardHeader>
+                <div>
+                  <h3 className="text-xl font-semibold my-4 text-center">
+                    Marksheet for {marksheet[0].examDetails.department} -{" "}
+                    {marksheet[0].examDetails.examName}
+                  </h3>
+                  <Table className="shadow-md rounded-md overflow-hidden">
+                    <TableHeader>
+                      <TableRow className="bg-gray-100">
+                        <TableHead className="py-3 px-4 text-sm text-left">
+                          Subject
+                        </TableHead>
+                        <TableHead className="py-3 px-4 text-sm text-left">
+                          Subject Code
+                        </TableHead>
+                        <TableHead className="py-3 px-4 text-sm text-left">
+                          Total Marks
+                        </TableHead>
+                        <TableHead className="py-3 px-4 text-sm text-left">
+                          Marks Obtained
+                        </TableHead>
+                        <TableHead className="py-3 px-4 text-sm text-left">
+                          Grade
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {marksheet.map((mark) => {
+                        return (
+                          <TableRow key={mark.examId} className="border-t">
+                            <TableCell className="py-3 px-4 text-sm">
+                              {mark.examDetails.subject.split("-")[0]}
+                            </TableCell>
+                            <TableCell className="py-3 px-4 text-sm">
+                              {mark.examDetails.subject.split("-")[1]}
+                            </TableCell>
+                            <TableCell className="py-3 px-4 text-sm">
+                              {mark.examDetails.totalMarks}
+                            </TableCell>
+                            <TableCell className="py-3 px-4 text-sm">
+                              {mark.securedMarks}
+                            </TableCell>
+                            <TableCell className="py-3 px-4 text-sm">
+                              {getGrade(mark.securedMarks)}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                  <div className="mt-6 text-center text-lg font-medium text-gray-700">
+                    <p>
+                      Total Percentage: {calculateTotalPercentage(marksheet)} %
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
-          </CardContent>
+              </CardContent>
 
-          <div className="my-6 text-center">
-            <Button
-              onClick={() => {
-                window.print();
-              }}
-              className="bg-indigo-600 text-white hover:bg-indigo-700"
-            >
-              Print Marksheet
-            </Button>
-          </div>
+              <div className="my-6 text-center">
+                <Button
+                  onClick={() => {
+                    window.print();
+                  }}
+                  className="bg-indigo-600 text-white hover:bg-indigo-700"
+                >
+                  Print Marksheet
+                </Button>
+              </div>
+            </>
+          ) : (
+            <CardContent className="text-center p-10">
+              <p>
+                No marksheet available. Maybe your result is not published yet.
+              </p>
+            </CardContent>
+          )}
         </Card>
       )}
     </>

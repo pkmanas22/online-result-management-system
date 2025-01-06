@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Users, BarChart } from "lucide-react";
+import { User, FileText, Book, Lock } from "lucide-react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Header } from "@/components/header";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -14,10 +14,10 @@ export default function Dashboard() {
   const [activeView, setActiveView] = useState("addProfessor");
 
   const sidebarItems = [
-    { icon: BarChart, label: "Add Professor", value: "addProfessor" },
-    { icon: Users, label: "Add Exam", value: "addExam" },
-    { icon: Users, label: "Add Subject", value: "addSubject" },
-    { icon: Users, label: "Update Password", value: "updatePassword" },
+    { icon: User, label: "Add Professor", value: "addProfessor" },
+    { icon: FileText, label: "Add Exam", value: "addExam" },
+    { icon: Book, label: "Add Subject", value: "addSubject" },
+    { icon: Lock, label: "Update Password", value: "updatePassword" },
   ];
 
   return (

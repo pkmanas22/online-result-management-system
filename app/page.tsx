@@ -24,16 +24,6 @@ export default function LandingPage() {
         <FeaturesSection />
         <TestimonialsSection />
       </main>
-
-      <footer className="py-8 bg-gray-100 text-gray-800">
-        <div className="container mx-auto px-6 md:px-12">
-          <div className="flex flex-col justify-center items-center">
-            <p className="text-lg">
-              &copy; {new Date().getFullYear()} ExamEase, OUTR. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

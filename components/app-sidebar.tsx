@@ -35,8 +35,8 @@ export function AppSidebar({
       <SidebarHeader className="flex items-center justify-center py-8 px-3">
         <Image
           src="/logo.png"
-          width={70}
-          height={70}
+          width={120}
+          height={120}
           className="rounded-full"
           alt="OUTR Logo"
         />
@@ -50,7 +50,11 @@ export function AppSidebar({
                 <SidebarMenuItem key={item.value}>
                   <SidebarMenuButton
                     onClick={() => setActiveView(item.value)}
-                    isActive={activeView === item.value}
+                    className={`${
+                      activeView === item.value
+                        ? "bg-indigo-600 text-white hover:bg-indigo-500 hover:text-white"
+                        : " hover:bg-gray-200 hover:text-gray-700"
+                    } flex items-center p-2 rounded-md transition duration-200 ease-in-out`}
                   >
                     <item.icon className="mr-2 h-4 w-4" />
                     <span>{item.label}</span>
