@@ -1,7 +1,9 @@
 import dbConnect from "@/lib/dbConnect";
 import Student from "@/models/student";
+import Faculty from "@/models/faculty";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
+import Admin from "@/models/admin";
 
 export const POST = async (req: NextRequest) => {
     try {
@@ -26,13 +28,22 @@ export const POST = async (req: NextRequest) => {
             );
         }
 
-        // Check for duplicate email or roll number
-        const existingStudent = await Student.findOne({
-            $or: [{ email }, { rollNo }],
-        });
+        const existingUser = await Student.findOne({ email })
+            || await Admin.findOne({ email })
+            || await Faculty.findOne({ email });
+
+        if (existingUser) {
+            return NextResponse.json(
+                { error: "This email id is already registered" },
+                { status: 409 }
+            );
+        }
+
+        // Check for duplicate roll number (only for Student model)
+        const existingStudent = await Student.findOne({ rollNo });
         if (existingStudent) {
             return NextResponse.json(
-                { error: "Email or Roll Number already exists" },
+                { error: "Roll Number already exists" },
                 { status: 409 }
             );
         }

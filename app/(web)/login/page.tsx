@@ -5,8 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import LoginButton from "@/components/LoginButton";
 import RegistrationButton from "@/components/RegistrationButton";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
+
+  const navigateToLandingPage = () => {
+    router.push("/");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
       <motion.div
@@ -15,7 +22,10 @@ export default function LoginPage() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-6xl space-y-12"
       >
-        <header className="flex items-center justify-center space-x-4 bg-white bg-opacity-80 backdrop-blur-md shadow-lg rounded-2xl p-6">
+        <header
+          className="flex items-center justify-center space-x-4 bg-white bg-opacity-80 backdrop-blur-md shadow-lg rounded-2xl p-6 cursor-pointer"
+          onClick={navigateToLandingPage} // Navigate to landing page when clicked
+        >
           <Image
             src="/logo.png"
             width={80}
