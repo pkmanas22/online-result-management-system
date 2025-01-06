@@ -19,7 +19,7 @@ const studentSchema = new Schema({
     required: true,
   },
   year: {
-    type: Number,
+    type: String,
     required: true,
   },
   subjects: [
@@ -33,7 +33,7 @@ const studentSchema = new Schema({
     required: true,
   },
   contactNumber: {
-    type: Number,
+    type: String,
   }
 });
 

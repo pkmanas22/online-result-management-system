@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from 'react'
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,54 +9,95 @@ import {
   DialogTitle,
   DialogDescription,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { allDepartments } from "@/lib/types";
+import { signIn } from "next-auth/react";
 
 export default function RegistrationButton() {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    year: '',
-    department: '',
-    contactNumber: '',
-    rollNo: '',
-  })
+    name: "",
+    email: "",
+    password: "",
+    year: "",
+    department: "",
+    contactNumber: "",
+    rollNo: "",
+  });
+
+  const [errors, setErrors] = useState<string | null>(null);
+
+  const resetFormData = () => {
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      year: "",
+      department: "",
+      contactNumber: "",
+      rollNo: "",
+    });
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSelectChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value })
-  }
+    setFormData({ ...formData, [field]: value });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
+    setErrors(null);
+
     try {
-      const response = await fetch('/api/register', {
-        method: 'POST',
+      const response = await fetch("/api/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok) {
-        console.log('Registration successful', data)
-        setOpen(false)
+        console.log("Registration successful", data);
+
+        const res = await signIn("credentials", {
+          email: formData.email,
+          password: formData.password,
+          role: "student",
+          callbackUrl: `/student`,
+          redirect: true,
+        });
+
+        if (res?.error) {
+          alert("Invalid credentials");
+          return;
+        }
+
+        // Reset form data after successful login
+        resetFormData();
+        setOpen(false);
       } else {
-        console.error('Registration failed', data.errors)
+        setErrors(data.error || "Registration failed");
       }
     } catch (error) {
-      console.error('An error occurred', error)
+      setErrors("An unexpected error occurred. Please try again later.");
+      console.error("Error during registration:", error);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -109,7 +150,7 @@ export default function RegistrationButton() {
             />
           </div>
           <div>
-            <Label htmlFor="contactNumber">Contact Number</Label>
+            <Label htmlFor="contactNumber">Phone Number</Label>
             <Input
               id="contactNumber"
               name="contactNumber"
@@ -123,42 +164,38 @@ export default function RegistrationButton() {
             <Input
               id="rollNo"
               name="rollNo"
-              type="tel"
+              type="text"
               value={formData.rollNo}
               onChange={handleChange}
+              required
             />
           </div>
           <div>
             <Label htmlFor="department">Department</Label>
             <Select
-              name="department"
+              value={formData.department}
               onValueChange={(value) => handleSelectChange("department", value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select department" />
+                <SelectValue placeholder="Select Department" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Computer Science">
-                  Computer Science
-                </SelectItem>
-                <SelectItem value="Information Technology">
-                  Information Technology
-                </SelectItem>
-                <SelectItem value="Electronics">Electronics</SelectItem>
-                <SelectItem value="Mechanical">Mechanical</SelectItem>
-                <SelectItem value="Civil">Civil</SelectItem>
-                {/* Add more departments as needed */}
+                {allDepartments.map((department, idx) => (
+                  <SelectItem key={idx} value={department}>
+                    {department}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
           <div>
             <Label htmlFor="year">Year</Label>
             <Select
-              name="year"
+              value={formData.year}
               onValueChange={(value) => handleSelectChange("year", value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select year" />
+                <SelectValue placeholder="Select Year" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="1">1st Year</SelectItem>
@@ -168,6 +205,7 @@ export default function RegistrationButton() {
               </SelectContent>
             </Select>
           </div>
+          {errors && <p className="text-red-500">{errors}</p>}
           <Button type="submit" className="w-full">
             Register
           </Button>
