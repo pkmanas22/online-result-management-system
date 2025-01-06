@@ -10,148 +10,168 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useSession } from "next-auth/react";
 
-interface Subject {
-  subjectCode: string;
-  subjectName: string;
+interface ExamDetails {
+  examName: string;
+  department: string;
+  subject: string;
   totalMarks: number;
-  marksObtained: number;
+  date: string;
 }
 
-interface Marksheet {
-  studentName: string;
-  rollNo: string;
-  examName: string;
-  subjects: Subject[];
+interface Mark {
+  examId: string;
+  studentId: string;
+  securedMarks: number;
+  examDetails: ExamDetails;
 }
 
 export default function GetMarksheet() {
-    const examName = "exam1";
-    const studentId = "100";
+  const [marksheet, setMarksheet] = useState<Mark[] | null>(null);
+  const [showCard, setShowCard] = useState(false); // State to control card visibility
+  const [loading, setLoading] = useState(false); // State to track loading status
+  const { data: session } = useSession();
 
-  const [marksheet, setMarksheet] = useState<Marksheet | null>(null);
-
-  const mockMarksheet: Record<string, Marksheet> = {
-    exam1: {
-      studentName: "John Doe",
-      rollNo: studentId,
-      examName: "Mathematics Exam 2025",
-      subjects: [
-        {
-          subjectCode: "MATH101",
-          subjectName: "Algebra",
-          totalMarks: 100,
-          marksObtained: 90,
-        },
-        {
-          subjectCode: "MATH102",
-          subjectName: "Calculus",
-          totalMarks: 100,
-          marksObtained: 85,
-        },
-        {
-          subjectCode: "MATH103",
-          subjectName: "Geometry",
-          totalMarks: 100,
-          marksObtained: 92,
-        },
-      ],
-    },
-    exam2: {
-      studentName: "John Doe",
-      rollNo: studentId,
-      examName: "Physics Exam 2025",
-      subjects: [
-        {
-          subjectCode: "PHY101",
-          subjectName: "Mechanics",
-          totalMarks: 100,
-          marksObtained: 80,
-        },
-        {
-          subjectCode: "PHY102",
-          subjectName: "Thermodynamics",
-          totalMarks: 100,
-          marksObtained: 75,
-        },
-        {
-          subjectCode: "PHY103",
-          subjectName: "Electromagnetism",
-          totalMarks: 100,
-          marksObtained: 88,
-        },
-      ],
-    },
-  };
-
-  const handleGetMarksheet = () => {
-    const examMarksheet = mockMarksheet[examName];
-    if (examMarksheet) {
-      setMarksheet(examMarksheet);
-    } else {
-      console.error("Marksheet not found");
+  const handleGetMarksheet = async () => {
+    try {
+      setLoading(true); // Set loading to true when fetching starts
+      const studentId = session?.user?.id as string;
+      const response = await fetch(`/api/student/marks?id=${studentId}`);
+      const data = await response.json();
+      setMarksheet(data.marks);
+      setShowCard(true); // Show the card after fetching marks
+    } catch (error) {
+      console.error("Failed to fetch marks:", error);
+    } finally {
+      setLoading(false); // Set loading to false when fetching ends
     }
   };
 
-  const calculateTotalPercentage = (subjects: Subject[]) => {
-    const totalMarks = subjects.reduce(
-      (acc, subject) => acc + subject.totalMarks,
+  const calculateTotalPercentage = (marks: Mark[]) => {
+    const totalMarks = marks.reduce(
+      (acc, mark) => acc + mark.examDetails.totalMarks,
       0
     );
-    const totalMarksObtained = subjects.reduce(
-      (acc, subject) => acc + subject.marksObtained,
+    const totalSecuredMarks = marks.reduce(
+      (acc, mark) => acc + mark.securedMarks,
       0
     );
-    return ((totalMarksObtained / totalMarks) * 100).toFixed(2);
+    return ((totalSecuredMarks / totalMarks) * 100).toFixed(2);
+  };
+
+  const getGrade = (marks: number) => {
+    if (marks >= 91) return "O";
+    if (marks >= 80) return "A+";
+    if (marks >= 70) return "A";
+    if (marks >= 60) return "B+";
+    if (marks >= 50) return "B";
+    if (marks >= 40) return "C";
+    return "F";
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle>Get Your Marksheet</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-6">
-          <Button onClick={handleGetMarksheet}>
-            Get Marksheet for {examName}
-          </Button>
-        </div>
+    <>
+      <div className="mb-6 text-center">
+        <Button
+          onClick={handleGetMarksheet}
+          className="bg-indigo-600 text-white hover:bg-indigo-700"
+        >
+          Get your Marksheet
+        </Button>
+      </div>
 
-        {marksheet && (
-          <div>
-            <h3 className="text-xl font-semibold mb-4">
-              {marksheet.studentName} - {marksheet.examName}
-            </h3>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Subject Code</TableHead>
-                  <TableHead>Subject Name</TableHead>
-                  <TableHead>Total Marks</TableHead>
-                  <TableHead>Marks Obtained</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {marksheet.subjects.map((subject) => (
-                  <TableRow key={subject.subjectCode}>
-                    <TableCell>{subject.subjectCode}</TableCell>
-                    <TableCell>{subject.subjectName}</TableCell>
-                    <TableCell>{subject.totalMarks}</TableCell>
-                    <TableCell>{subject.marksObtained}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <div className="mt-4 text-sm font-medium">
-              <p>
-                Total Percentage: {calculateTotalPercentage(marksheet.subjects)}
-                %
+      {/* Show a spinner while loading */}
+      {loading && (
+        <div className="flex justify-center items-center my-6">
+          <div className="animate-spin rounded-full border-t-2 border-b-2 border-indigo-600 w-12 h-12"></div>
+        </div>
+      )}
+
+      {/* Show Card only if showCard is true */}
+      {showCard && !loading && (
+        <Card className="w-full max-w-4xl mx-auto bg-white shadow-lg rounded-lg">
+          <CardContent className="p-6">
+            <CardHeader className="border-b border-gray-300 py-4 px-6 text-center">
+              <h2 className="text-3xl font-bold text-indigo-600">
+                Odisha University of Research & Technology, Bhubaneswar
+              </h2>
+              <p className="text-lg text-gray-500 mt-1">
+                ExamEase Portal - OUTR
               </p>
-            </div>
+            </CardHeader>
+            {marksheet && (
+              <div>
+                <h3 className="text-xl font-semibold my-4 text-center">
+                  Marksheet for {marksheet[0].examDetails.department} -{" "}
+                  {marksheet[0].examDetails.examName}
+                </h3>
+                <Table className="shadow-md rounded-md overflow-hidden">
+                  <TableHeader>
+                    <TableRow className="bg-gray-100">
+                      <TableHead className="py-3 px-4 text-sm text-left">
+                        Subject
+                      </TableHead>
+                      <TableHead className="py-3 px-4 text-sm text-left">
+                        Subject Code
+                      </TableHead>
+                      <TableHead className="py-3 px-4 text-sm text-left">
+                        Total Marks
+                      </TableHead>
+                      <TableHead className="py-3 px-4 text-sm text-left">
+                        Marks Obtained
+                      </TableHead>
+                      <TableHead className="py-3 px-4 text-sm text-left">
+                        Grade
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {marksheet.map((mark) => {
+                      return (
+                        <TableRow key={mark.examId} className="border-t">
+                          <TableCell className="py-3 px-4 text-sm">
+                            {mark.examDetails.subject.split("-")[0]}
+                          </TableCell>
+                          <TableCell className="py-3 px-4 text-sm">
+                            {mark.examDetails.subject.split("-")[1]}
+                          </TableCell>
+                          <TableCell className="py-3 px-4 text-sm">
+                            {mark.examDetails.totalMarks}
+                          </TableCell>
+                          <TableCell className="py-3 px-4 text-sm">
+                            {mark.securedMarks}
+                          </TableCell>
+                          <TableCell className="py-3 px-4 text-sm">
+                            {getGrade(mark.securedMarks)}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+                <div className="mt-6 text-center text-lg font-medium text-gray-700">
+                  <p>
+                    Total Percentage: {calculateTotalPercentage(marksheet)} %
+                  </p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+
+          <div className="my-6 text-center">
+            <Button
+              onClick={() => {
+                window.print();
+              }}
+              className="bg-indigo-600 text-white hover:bg-indigo-700"
+            >
+              Print Marksheet
+            </Button>
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </Card>
+      )}
+    </>
   );
 }
