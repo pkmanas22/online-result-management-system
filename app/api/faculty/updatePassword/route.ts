@@ -8,6 +8,7 @@ export const POST = async (req: NextRequest) => {
 
   try {
     const { currentPassword, newPassword, id } = await req.json();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const errors: { mismatchError?: string } = {};
 
     const faculty = await Faculty.findById(id);

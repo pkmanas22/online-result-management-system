@@ -8,7 +8,7 @@ export const POST = async (req: NextRequest) => {
   await dbConnect(); // Connect to the database
 
   try {
-    const { rollNo, studentName, selectedExam, securedMarks, } = await req.json();
+    const { rollNo, selectedExam, securedMarks, } = await req.json();
     const errors: { examError?: string } = {};
 
     // Fetching the exam document using the provided exam name

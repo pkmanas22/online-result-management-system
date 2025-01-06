@@ -11,12 +11,12 @@ export function UpdatePassword() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const {data : session} = useSession();
   
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const {data : session} = useSession();
       if(!session) {
         console.log("User is not logged in")
         return ;
@@ -40,7 +40,7 @@ export function UpdatePassword() {
         console.log("Password update submitted");
       }
     } catch (error) {
-      console.log("Failed to update password");
+      console.log("Failed to update password", error);
     }
   };
 

@@ -85,7 +85,7 @@ export function UploadMarks() {
         alert("Marks uploaded successfully");
       }
     } catch (error) {
-      console.error("Failed to upload marks");
+      console.error("Failed to upload marks", error);
       throw new Error("Failed to upload marks");
     }
   };
