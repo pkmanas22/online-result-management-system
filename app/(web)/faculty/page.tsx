@@ -6,7 +6,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Header } from "@/components/header";
 import { AppSidebar } from "@/components/app-sidebar";
 import { UploadMarks } from "@/components/faculty/UploadMarks";
-import { UpdatePassword } from "@/components/UpdatePassword";
+import { UpdatePassword } from "@/components/faculty/UpdatePassword";
 
 export default function Dashboard() {
   const [activeView, setActiveView] = useState("");

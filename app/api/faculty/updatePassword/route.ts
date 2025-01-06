@@ -7,17 +7,18 @@ export const POST = async (req: NextRequest) => {
   await dbConnect(); // Connect to the database
 
   try {
-    const { newPassword, confirmPassword, email } = await req.json();
+    const { currentPassword, newPassword, id } = await req.json();
     const errors: { mismatchError?: string } = {};
 
-    if (newPassword !== confirmPassword) {
-      errors.mismatchError = "Your password and confirmation password do not match";
-      return NextResponse.json({ errors }, { status: 400 });
-    }
-
-    const faculty = await Faculty.findOne({ email });
+    const faculty = await Faculty.findById(id);
     if (!faculty) {
       return NextResponse.json({ error: "Faculty not found" }, { status: 404 });
+    }
+
+    const mathch = await bcrypt.compare(currentPassword, faculty.password);
+    if(!mathch) {
+      alert("Wrong password");
+      return;
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);

@@ -5,16 +5,43 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useSession } from "next-auth/react";
 
 export function UpdatePassword() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
+  
+  
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Add password update logic here
-    console.log("Password update submitted");
+    try {
+      const {data : session} = useSession();
+      if(!session) {
+        console.log("User is not logged in")
+        return ;
+      }
+      const res = await fetch("api/faculty/updatePassword", {
+        method: "POST",
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+          id: session.user.id
+        }),
+      });
+      console.log(res);
+      console.log("data" , session);
+      
+      if(!res.ok) {
+        console.log("Failed to update password");
+        return;
+      }else{
+        alert("Password updated successfully");
+        console.log("Password update submitted");
+      }
+    } catch (error) {
+      console.log("Failed to update password");
+    }
   };
 
   return (

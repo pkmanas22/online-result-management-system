@@ -2,20 +2,18 @@ import dbConnect from "@/lib/dbConnect"; // Ensure this is your correct path
 import Marks from "@/models/marks"; // Adjust import path accordingly
 import Exam from "@/models/exam"; // Assuming "exam" model is used to define the exam structure
 import { NextRequest, NextResponse } from "next/server";
+import Student from "@/models/student";
 
 export const POST = async (req: NextRequest) => {
   await dbConnect(); // Connect to the database
 
   try {
-    const { department, year, section, exam, marks } = await req.json();
+    const { rollNo, studentName, selectedExam, securedMarks, } = await req.json();
     const errors: { examError?: string } = {};
 
     // Fetching the exam document using the provided exam name
     const existingExam = await Exam.findOne({
-      department,
-      year,
-      section,
-      exam,
+      selectedExam
     });
 
     if (!existingExam) {
@@ -31,15 +29,14 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ errors }, { status: 400 });
     }
 
-    // Uploading marks
-    for (let i = 0; i < marks.length; i++) {
+    const student = await Student.findOne({ rollNo });
+    // Uploading mark
       const newMarks = new Marks({
-        student: marks[i]._id,
-        exam: existingExam._id,
-        marks: marks[i].value,
+        student: student._id,
+        exam: selectedExam,
+        marks: securedMarks,
       });
       await newMarks.save();
-    }
 
     return NextResponse.json({
       message: "Marks uploaded successfully",
