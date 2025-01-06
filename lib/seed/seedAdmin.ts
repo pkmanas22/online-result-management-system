@@ -34,17 +34,12 @@ export const seedAdmins = async () => {
 
         // Clear existing data in the collection
         await Admin.deleteMany({});
-        console.log("Cleared existing admin data");
+        // console.log("Cleared existing admin data");
 
-        // Insert new dummy data
-        const insertedAdmins = await Admin.insertMany(hashedAdmins);
-        console.log("Inserted Admins:", insertedAdmins);
-
-        // Close the connection
-        // await mongoose.connection.close();
-        console.log("Database connection closed");
+        await Admin.insertMany(hashedAdmins);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-        console.error("Error seeding admins:", error);
+        // console.error("Error seeding admins:", error);
         mongoose.connection.close();
         process.exit(1);
     }

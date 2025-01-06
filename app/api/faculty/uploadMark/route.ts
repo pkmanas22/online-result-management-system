@@ -39,9 +39,9 @@ export const POST = async (req: NextRequest) => {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error uploading marks:", error);
+    // console.error("Error uploading marks:", error);
     return NextResponse.json(
-      { error: "An unexpected error occurred" },
+      { error: (error as Error).message || "An unexpected error occurred" },
       { status: 500 }
     );
   }

@@ -35,7 +35,7 @@ export default async function middleware(request: NextRequest) {
         if (!validRoles.includes(userRole)) {
             return NextResponse.redirect(new URL("/login", request.url));
         }
-        console.log("hello")
+        // console.log("hello")
 
         // Redirect authenticated users away from login page to their dashboard
         if (isAuthRoute) {

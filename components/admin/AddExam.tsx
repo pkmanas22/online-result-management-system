@@ -66,8 +66,8 @@ const AddExam = () => {
         setSubjects([]);
       }
     } catch (error) {
-      console.error(error);
-      setError("Error fetching subjects");
+      // console.error(error);
+      setError((error as Error).message || "Error fetching subjects");
     }
   };
 
@@ -107,8 +107,8 @@ const AddExam = () => {
         alert(result.error || "Error adding exam");
       }
     } catch (err) {
-      alert("Error adding exam");
-      console.error("Error adding exam:", err);
+      alert((err as Error).message || "Error adding exam");
+      // console.error("Error adding exam:", err);
     } finally {
       setLoading(false);
     }

@@ -39,7 +39,7 @@ export const GET = async (req: NextRequest) => {
 
         return NextResponse.json({ marks: marksWithExamDetails }, { status: 200 });
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         return NextResponse.json({ error: (error as Error).message || "Something went wrong" }, { status: 500 });
     }
 }

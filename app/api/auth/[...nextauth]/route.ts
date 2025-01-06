@@ -53,14 +53,14 @@ const handler = NextAuth({
                     };
 
                     if (!email || !password || !role) {
-                        console.error("Email, role and password are required");
+                        // console.error("Email, role and password are required");
                         return null; // Return null for invalid input
                     }
 
                     const user = await fetchUserDetails(email, role);
 
                     if (!user || !user.password) {
-                        console.error("Invalid credentials");
+                        // console.error("Invalid credentials");
                         return null; // Return null for invalid credentials
                     }
 
@@ -70,7 +70,7 @@ const handler = NextAuth({
                     );
 
                     if (!isCorrectPassword) {
-                        console.error("Invalid password");
+                        // console.error("Invalid password");
                         return null; // Return null if the password is incorrect
                     }
 
@@ -81,8 +81,9 @@ const handler = NextAuth({
                         email: user.email,
                         role: role,
                     };
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 } catch (error) {
-                    console.error("Authorize Error:", error);
+                    // console.error("Authorize Error:", error);
                     return null; // Always return null on error
                 }
             }

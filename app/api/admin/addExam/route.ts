@@ -33,7 +33,7 @@ export const POST = async (req: NextRequest) => {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error adding exam:", error);
+    // console.error("Error adding exam:", error);
     return NextResponse.json(
       {
         success: false,

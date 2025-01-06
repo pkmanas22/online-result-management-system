@@ -45,7 +45,7 @@ export const POST = async (req: NextRequest) => {
 
     return NextResponse.json({ result }, { status: 200 });
   } catch (error) {
-    console.error("Error fetching test results:", error);
-    return NextResponse.json({ backendError: "An unexpected error occurred" }, { status: 500 });
+    // console.error("Error fetching test results:", error);
+    return NextResponse.json({ backendError: (error as Error).message || "An unexpected error occurred" }, { status: 500 });
   }
 }

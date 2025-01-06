@@ -70,7 +70,7 @@ export const POST = async (req: NextRequest) => {
             { status: 201 }
         );
     } catch (error) {
-        console.error("Error registering student:", error);
+        // console.error("Error registering student:", error);
         return NextResponse.json(
             {
                 success: false,

@@ -24,7 +24,7 @@ export function UpdatePassword() {
 
     try {
       if (!session) {
-        console.log("User is not logged in");
+        // console.log("User is not logged in");
         return;
       }
 
@@ -49,10 +49,11 @@ export function UpdatePassword() {
       } else {
         alert(responseData.message || "Password updated successfully");
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       // Handle unexpected errors
       alert("Failed to update password. Please try again.");
-      console.log("Failed to update password", error);
+      // console.log("Failed to update password", error);
     }
   };
 

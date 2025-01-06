@@ -43,7 +43,7 @@ export const POST = async (req: NextRequest) => {
       message: "Password updated successfully",
     }, { status: 200 });
   } catch (error) {
-    console.error("Error updating password:", error);
-    return NextResponse.json({ error: "An unexpected error occurred" }, { status: 500 });
+    // console.error("Error updating password:", error);
+    return NextResponse.json({ error: (error as Error).message || "An unexpected error occurred" }, { status: 500 });
   }
 }

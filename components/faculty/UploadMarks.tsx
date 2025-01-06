@@ -62,7 +62,8 @@ export function UploadMarks() {
           const data = await res.json();
           setFacultyDetails(data.user);
         } catch (error) {
-          console.error("Error fetching faculty details:", error);
+          alert((error as Error).message || "Error occurred");
+          // console.error("Error fetching faculty details:", error);
         }
       };
 
@@ -79,7 +80,8 @@ export function UploadMarks() {
           setExams(data.exams);
         })
         .catch((error) => {
-          console.error("Error fetching exams:", error);
+          alert((error as Error).message || "Error occurred");
+          // console.error("Error fetching exams:", error);
         });
     }
   }, [facultyDetails]);
@@ -97,7 +99,8 @@ export function UploadMarks() {
           }
         })
         .catch((error) => {
-          console.error("Error fetching student details:", error);
+          alert((error as Error).message || "Error occurred");
+          // console.error("Error fetching student details:", error);
         });
     }
   }, [rollNo]);
@@ -118,7 +121,7 @@ export function UploadMarks() {
       });
 
       if (!res.ok) {
-        console.error("Failed to upload marks");
+        // console.error("Failed to upload marks");
         return;
       }
 
@@ -128,7 +131,8 @@ export function UploadMarks() {
       setSecuredMarks("");
       setStudent(null); // Clear student details after submission
     } catch (error) {
-      console.error("Failed to upload marks", error);
+      alert((error as Error).message || "Error while submit");
+      // console.error("Failed to upload marks", error);
     }
   };
 

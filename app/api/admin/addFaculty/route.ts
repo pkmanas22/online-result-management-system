@@ -47,7 +47,7 @@ export const POST = async (req: NextRequest) => {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error adding faculty:", error);
+    // console.error("Error adding faculty:", error);
     return NextResponse.json(
       {
         success: false,

@@ -43,7 +43,8 @@ export default function GetMarksheet() {
       setMarksheet(data.marks);
       setShowCard(true); // Show the card after fetching marks
     } catch (error) {
-      console.error("Failed to fetch marks:", error);
+      alert((error as Error).message || "Error occurred while fetching marks");
+      // console.error("Failed to fetch marks:", error);
     } finally {
       setLoading(false); // Set loading to false when fetching ends
     }

@@ -79,8 +79,8 @@ const AddSubject = () => {
       }
     } catch (err) {
       // Catch error from fetch or other unexpected errors
-      alert("Some error occurred");
-      console.error("Error adding subject:", err);
+      alert((err as Error).message || "Some error occurred");
+      // console.error("Error adding subject:", err);
     } finally {
       setLoading(false);
     }

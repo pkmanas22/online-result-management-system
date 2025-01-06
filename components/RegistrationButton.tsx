@@ -75,7 +75,7 @@ export default function RegistrationButton() {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("Registration successful", data);
+        // console.log("Registration successful", data);
 
         const res = await signIn("credentials", {
           email: formData.email,
@@ -96,9 +96,10 @@ export default function RegistrationButton() {
       } else {
         alert(data.error || "Registration failed");
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       alert("An unexpected error occurred. Please try again later.");
-      console.error("Error during registration:", error);
+      // console.error("Error during registration:", error);
     }
     setIsLoading(false);
   };

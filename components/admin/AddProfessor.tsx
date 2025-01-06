@@ -68,8 +68,8 @@ const AddProfessor = () => {
         setSubjects([]);
       }
     } catch (error) {
-      console.error(error);
-      setError("Error fetching subjects");
+      // console.error(error);
+      setError((error as Error).message || "Error fetching subjects");
     }
   };
 
@@ -106,8 +106,8 @@ const AddProfessor = () => {
         reset(); // Reset the form after successful submission
       }
     } catch (err) {
-      alert("An unexpected error occurred");
-      console.error("Error adding professor:", err);
+      alert((err as Error).message || "An unexpected error occurred");
+      // console.error("Error adding professor:", err);
     } finally {
       setLoading(false);
     }

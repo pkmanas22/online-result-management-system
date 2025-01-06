@@ -16,8 +16,9 @@ export async function middleware(req: NextRequest) {
         req.userId = (decodedData as jwt.JwtPayload)?.id; // Now TypeScript knows that 'userId' exists on 'req'
       }
     }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Authentication error:", error);
+    // console.error("Authentication error:", error);
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
