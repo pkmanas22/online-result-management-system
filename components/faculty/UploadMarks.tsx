@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useSession } from "next-auth/react";
 
 interface Exam {
   _id: string;
@@ -29,6 +30,7 @@ export function UploadMarks() {
   const [exams, setExams] = useState<Exam[]>([]);
   const [selectedExam, setSelectedExam] = useState<string>("");
   const [securedMarks, setSecuredMarks] = useState("");
+  const {data : session} = useSession();
 
   useEffect(() => {
     // Simulate fetching exams
@@ -56,13 +58,22 @@ export function UploadMarks() {
   }, []);
 
   useEffect(() => {
-    // Simulate fetching student name
-    if (rollNo == "2580") {
-      setStudentName("John Doe");
-    } else {
-      setStudentName("");
+    try {
+      if (session && session.user) {
+        fetch(`api/student/name&id=${session.user.id}`)
+          .then((res) => res.json())
+          .then((data) => {
+            setStudentName(data.name);
+          })
+          .catch((error) => {
+            console.error("Error fetching the name:", error);
+          });
+      }
+    } catch (error) {
+      console.error("Error in useEffect:", error);
     }
   }, [rollNo]);
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
