@@ -5,7 +5,7 @@ import { Users, BarChart } from "lucide-react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Header } from "@/components/header";
 import { AppSidebar } from "@/components/app-sidebar";
-import { UpdatePassword } from "@/components/faculty/UpdatePassword";
+import { UpdatePassword } from "@/components/UpdatePassword";
 import GetResult from "@/components/student/GetResult";
 import GetMarksheet from "@/components/student/GetMarksheet";
 

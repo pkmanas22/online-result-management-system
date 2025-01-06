@@ -8,6 +8,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import AddProfessor from "@/components/admin/AddProfessor";
 import AddExam from "@/components/admin/AddExam";
 import AddSubject from "@/components/admin/AddSubject";
+import { UpdatePassword } from "@/components/UpdatePassword";
 
 export default function Dashboard() {
   const [activeView, setActiveView] = useState("addProfessor");
@@ -16,6 +17,7 @@ export default function Dashboard() {
     { icon: BarChart, label: "Add Professor", value: "addProfessor" },
     { icon: Users, label: "Add Exam", value: "addExam" },
     { icon: Users, label: "Add Subject", value: "addSubject" },
+    { icon: Users, label: "Update Password", value: "updatePassword" },
   ];
 
   return (
@@ -32,6 +34,7 @@ export default function Dashboard() {
             {activeView === "addProfessor" && <AddProfessor />}
             {activeView === "addExam" && <AddExam />}
             {activeView === "addSubject" && <AddSubject />}
+            {activeView === "updatePassword" && <UpdatePassword />}
           </main>
         </div>
         <SidebarInset className="flex-1 overflow-auto"></SidebarInset>

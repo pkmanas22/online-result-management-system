@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface LoginButtonProps {
   role: string;
@@ -22,6 +23,7 @@ export default function LoginButton({ role }: LoginButtonProps) {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,24 +33,26 @@ export default function LoginButton({ role }: LoginButtonProps) {
       return;
     }
 
-    setEmail("");
-    setPassword("");
-
     const res = await signIn("credentials", {
       email,
       password,
       role: role.toLowerCase(),
       callbackUrl: `/${role.toLowerCase()}`,
-      redirect: true,
+      redirect: false,
     });
 
     if (res?.error) {
-      alert("Invalid credentials");
+      alert(`No ${role.toLowerCase()} found associated with the given credentials`);
       return;
+    } else {
+      router.push(`/${role.toLowerCase()}`);
     }
+    setEmail("");
+    setPassword("");
+    
     // console.log("Form submitted");
   };
-  
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>

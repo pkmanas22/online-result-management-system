@@ -28,7 +28,6 @@ export const POST = async (req : NextRequest) => {
       {
         success: true,
         message: "Subject added successfully",
-        response: newSubject,
       },
       { status: 200 }
     );

@@ -80,7 +80,6 @@ const AddProfessor = () => {
     // Extract the form data
     const { name, email, password, department, contactNumber, subject } = data;
 
-    // Perform API call to add the professor
     try {
       const res = await fetch("/api/admin/addFaculty", {
         method: "POST",
@@ -97,14 +96,17 @@ const AddProfessor = () => {
         }),
       });
 
+      const responseData = await res.json();
+
       if (!res.ok) {
-        alert("Failed to add professor");
+        // Display server error message
+        alert(responseData.error || "Failed to add professor");
       } else {
-        alert("Professor added successfully");
+        alert(responseData.message || "Professor added successfully");
         reset(); // Reset the form after successful submission
       }
     } catch (err) {
-      setError("Some error occurred");
+      alert("An unexpected error occurred");
       console.error("Error adding professor:", err);
     } finally {
       setLoading(false);

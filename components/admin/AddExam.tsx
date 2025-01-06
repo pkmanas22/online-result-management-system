@@ -104,10 +104,10 @@ const AddExam = () => {
         setValue("totalMarks", 0)
         setValue("date", "")
       } else {
-        setError(result.error || "Error adding exam");
+        alert(result.error || "Error adding exam");
       }
     } catch (err) {
-      setError("Error adding exam");
+      alert("Error adding exam");
       console.error("Error adding exam:", err);
     } finally {
       setLoading(false);

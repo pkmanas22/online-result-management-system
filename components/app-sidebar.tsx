@@ -11,6 +11,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import Image from "next/image";
 
 interface SidebarItem {
   icon: LucideIcon;
@@ -32,7 +33,13 @@ export function AppSidebar({
   return (
     <Sidebar>
       <SidebarHeader className="flex items-center justify-center py-8 px-3">
-        <h1>OUTR</h1>
+        <Image
+          src="/logo.png"
+          width={70}
+          height={70}
+          className="rounded-full"
+          alt="OUTR Logo"
+        />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

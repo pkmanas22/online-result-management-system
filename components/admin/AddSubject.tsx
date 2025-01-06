@@ -68,15 +68,18 @@ const AddSubject = () => {
         }),
       });
 
+      const responseData = await res.json();
+
       if (!res.ok) {
-        alert("Failed to add subject");
+        // Set the server error message
+        alert(responseData.error || "Failed to add subject");
       } else {
         alert("Subject added successfully");
         reset(); // Reset the form after successful submission
       }
     } catch (err) {
-      // Catch error from fetch or from server response
-      setError("Some error occurred");
+      // Catch error from fetch or other unexpected errors
+      alert("Some error occurred");
       console.error("Error adding subject:", err);
     } finally {
       setLoading(false);

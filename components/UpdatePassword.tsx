@@ -16,33 +16,46 @@ export function UpdatePassword() {
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (newPassword !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
     try {
-      if(!session) {
-        console.log("User is not logged in")
-        return ;
+      if (!session) {
+        console.log("User is not logged in");
+        return;
       }
-      const res = await fetch("api/faculty/updatePassword", {
+
+      const res = await fetch("api/updatePassword", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           currentPassword,
           newPassword,
-          id: session.user.id
+          id: session.user.id,
+          role: session.user?.role,
         }),
       });
-      console.log(res);
-      console.log("data" , session);
-      
-      if(!res.ok) {
-        console.log("Failed to update password");
+
+      const responseData = await res.json(); // Parse the JSON response from the server
+
+      if (!res.ok) {
+        alert(responseData.error || "Failed to update password");
         return;
-      }else{
-        alert("Password updated successfully");
-        console.log("Password update submitted");
+      } else {
+        alert(responseData.message || "Password updated successfully");
       }
     } catch (error) {
+      // Handle unexpected errors
+      alert("Failed to update password. Please try again.");
       console.log("Failed to update password", error);
     }
   };
+
 
   return (
     <Card className="w-full max-w-md mx-auto">
