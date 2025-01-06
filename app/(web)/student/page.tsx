@@ -5,14 +5,16 @@ import { Users, BarChart } from "lucide-react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Header } from "@/components/header";
 import { AppSidebar } from "@/components/app-sidebar";
-import { UploadMarks } from "@/components/faculty/UploadMarks";
 import { UpdatePassword } from "@/components/UpdatePassword";
+import GetResult from "@/components/student/GetResult";
+import GetMarksheet from "@/components/student/GetMarksheet";
 
 export default function Dashboard() {
   const [activeView, setActiveView] = useState("");
 
   const sidebarItems = [
-    { icon: BarChart, label: "Upload marks", value: "uploadMarks" },
+    { icon: BarChart, label: "Get Result Subject-wise", value: "getResult" },
+    { icon: BarChart, label: "Get Marksheet", value: "getMarksheet" },
     { icon: Users, label: "Update Password", value: "updatePassword" },
   ];
 
@@ -27,7 +29,8 @@ export default function Dashboard() {
         <div className="flex flex-col w-screen overflow-y-scroll">
           <Header />
           <main className="p-6">
-            {activeView === "uploadMarks" && <UploadMarks />}
+            {activeView === "getResult" && <GetResult />}
+            {activeView === "getMarksheet" && <GetMarksheet />}
             {activeView === "updatePassword" && <UpdatePassword />}
           </main>
         </div>
